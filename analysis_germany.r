@@ -7,7 +7,7 @@
 # SETUP
 #############
 # SELECT COUNTRY: "us", "germany", "france", "uk"
-COUNTRY <- "us"  # ← MODIFY THIS FOR EACH RUN
+COUNTRY <- "germany"  # Country-specific script
 
 # Create paths
 DATA_DIR   <- file.path("data", tolower(COUNTRY))
