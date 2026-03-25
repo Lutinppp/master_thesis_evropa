@@ -113,13 +113,11 @@ ACMTermPremium    <- tryCatch(
 
 # Control variables
 EBP          <- read_csv_auto(file.path(DATA_DIR, "control_variables", "EBP.csv"), required = FALSE)
-EXPINF5YR    <- read_csv_auto(file.path(DATA_DIR, "control_variables", "EXPINF5YR.csv"), required = FALSE)
 TBILL        <- read_csv_auto(file.path(DATA_DIR, "control_variables", "ST_rate.csv"), required = FALSE)
 UNPOP        <- read_csv_auto(file.path(DATA_DIR, "control_variables", "UNPOP.csv"), required = FALSE)
 REC          <- read_csv_auto(file.path(DATA_DIR, "control_variables", "REC.csv"), required = FALSE)
 FDHBFIN      <- read_csv_auto(file.path(DATA_DIR, "control_variables", "FDHBFIN.csv"), required = FALSE)
 GFDEBTN      <- read_csv_auto(file.path(DATA_DIR, "control_variables", "GFDEBTN.csv"), required = FALSE)
-GDP_ACTUAL   <- read_csv_auto(file.path(DATA_DIR, "control_variables", "GDP.csv"), required = FALSE)
 
 cat("Data loaded successfully.\n\n")
 cat("[sanity] Loaded dataset sizes:\n")
@@ -127,13 +125,11 @@ print_rows("debt_5y_with_gdp", debt_5y_with_gdp)
 print_rows("deficit_5y_with_gdp", deficit_5y_with_gdp)
 print_rows("gsw_forward_rates", gsw_forward_rates)
 print_rows("long_rate", long_rate)
-if (!is.null(EXPINF5YR)) print_rows("EXPINF5YR", EXPINF5YR)
 if (!is.null(TBILL)) print_rows("TBILL", TBILL)
 if (!is.null(UNPOP)) print_rows("UNPOP", UNPOP)
 if (!is.null(REC)) print_rows("REC", REC)
 if (!is.null(FDHBFIN)) print_rows("FDHBFIN", FDHBFIN)
 if (!is.null(GFDEBTN)) print_rows("GFDEBTN", GFDEBTN)
-if (!is.null(GDP_ACTUAL)) print_rows("GDP_ACTUAL", GDP_ACTUAL)
 if (!is.null(ACMTermPremium)) print_rows("ACMTermPremium", ACMTermPremium)
 if (!is.null(EBP)) print_rows("EBP", EBP)
 cat("\n")
@@ -147,13 +143,11 @@ setDT(debt_5y_with_gdp)
 setDT(deficit_5y_with_gdp)
 setDT(gsw_forward_rates)
 setDT(long_rate)
-if (!is.null(EXPINF5YR)) setDT(EXPINF5YR)
 if (!is.null(TBILL)) setDT(TBILL)
 if (!is.null(UNPOP)) setDT(UNPOP)
 if (!is.null(REC)) setDT(REC)
 if (!is.null(FDHBFIN)) setDT(FDHBFIN)
 if (!is.null(GFDEBTN)) setDT(GFDEBTN)
-if (!is.null(GDP_ACTUAL)) setDT(GDP_ACTUAL)
 
 if (!is.null(ACMTermPremium)) setDT(ACMTermPremium)
 if (!is.null(EBP)) setDT(EBP)
@@ -167,8 +161,6 @@ debt_value_col   <- require_col(debt_5y_with_gdp, c("debt_pct_GDP", "value"), "d
 def_value_col    <- require_col(deficit_5y_with_gdp, c("deficit_pct_GDP", "value"), "deficit_5y_with_gdp")
 long_value_col   <- require_col(long_rate, c("DGS10", "value"), "long_rate")
 
-infl_date_col <- if (!is.null(EXPINF5YR)) pick_col(EXPINF5YR, c("observation_date", "DATE", "date")) else NA_character_
-infl_val_col  <- if (!is.null(EXPINF5YR)) pick_col(EXPINF5YR, c("EXPINF5YR", "value")) else NA_character_
 tbill_date_col <- if (!is.null(TBILL)) pick_col(TBILL, c("observation_date", "DATE", "date")) else NA_character_
 tbill_val_col  <- if (!is.null(TBILL)) pick_col(TBILL, c("TB3MS", "value")) else NA_character_
 unpop_year_col <- if (!is.null(UNPOP)) pick_col(UNPOP, c("Time", "year", "YEAR")) else NA_character_
@@ -179,8 +171,6 @@ fdh_date_col <- if (!is.null(FDHBFIN)) pick_col(FDHBFIN, c("observation_date", "
 fdh_val_col  <- if (!is.null(FDHBFIN)) pick_col(FDHBFIN, c("FDHBFIN", "value")) else NA_character_
 gfd_date_col <- if (!is.null(GFDEBTN)) pick_col(GFDEBTN, c("observation_date", "DATE", "date")) else NA_character_
 gfd_val_col  <- if (!is.null(GFDEBTN)) pick_col(GFDEBTN, c("GFDEBTN", "value")) else NA_character_
-gdp_date_col <- if (!is.null(GDP_ACTUAL)) pick_col(GDP_ACTUAL, c("observation_date", "DATE", "date")) else NA_character_
-gdp_val_col  <- if (!is.null(GDP_ACTUAL)) pick_col(GDP_ACTUAL, c("GDP", "value")) else NA_character_
 ebp_date_col <- if (!is.null(EBP)) pick_col(EBP, c("date", "DATE", "observation_date")) else NA_character_
 ebp_val_col  <- if (!is.null(EBP)) pick_col(EBP, c("ebp", "value")) else NA_character_
 
@@ -189,11 +179,9 @@ debt_5y_with_gdp[,    DATE := parse_date_flex(get(debt_date_col))]
 deficit_5y_with_gdp[, DATE := parse_date_flex(get(def_date_col))]
 gsw_forward_rates[,   DATE := parse_date_flex(get(gsw_date_col))]
 long_rate[,           DATE := parse_date_flex(get(long_date_col))]
-if (!is.null(EXPINF5YR) && !is.na(infl_date_col)) EXPINF5YR[, DATE := parse_date_flex(get(infl_date_col))]
 if (!is.null(TBILL) && !is.na(tbill_date_col)) TBILL[, DATE := parse_date_flex(get(tbill_date_col))]
 if (!is.null(UNPOP) && !is.na(unpop_year_col)) UNPOP[, DATE := as.Date(paste0(get(unpop_year_col), "-01-01"))]
 if (!is.null(REC) && !is.na(rec_date_col)) REC[, DATE := parse_date_flex(get(rec_date_col))]
-if (!is.null(GDP_ACTUAL) && !is.na(gdp_date_col)) GDP_ACTUAL[, DATE := parse_date_flex(get(gdp_date_col))]
 
 if (!is.null(ACMTermPremium)) ACMTermPremium[, DATE := as.Date(DATE, format = "%d-%b-%Y")]
 if (!is.null(EBP) && !is.na(ebp_date_col)) EBP[, DATE := parse_date_flex(get(ebp_date_col))]
@@ -213,12 +201,10 @@ print_date_na("debt_5y_with_gdp", debt_5y_with_gdp)
 print_date_na("deficit_5y_with_gdp", deficit_5y_with_gdp)
 print_date_na("gsw_forward_rates", gsw_forward_rates)
 print_date_na("long_rate", long_rate)
-if (!is.null(EXPINF5YR) && "DATE" %in% names(EXPINF5YR)) print_date_na("EXPINF5YR", EXPINF5YR)
 if (!is.null(TBILL) && "DATE" %in% names(TBILL)) print_date_na("TBILL", TBILL)
 if (!is.null(REC) && "DATE" %in% names(REC)) print_date_na("REC", REC)
 if (!is.null(FDHBFIN) && "DATE" %in% names(FDHBFIN)) print_date_na("FDHBFIN", FDHBFIN)
 if (!is.null(GFDEBTN) && "DATE" %in% names(GFDEBTN)) print_date_na("GFDEBTN", GFDEBTN)
-if (!is.null(GDP_ACTUAL) && "DATE" %in% names(GDP_ACTUAL)) print_date_na("GDP_ACTUAL", GDP_ACTUAL)
 if (!is.null(ACMTermPremium)) print_date_na("ACMTermPremium", ACMTermPremium)
 if (!is.null(EBP)) print_date_na("EBP", EBP)
 cat("\n")
@@ -264,31 +250,11 @@ if (!is.null(FDHBFIN) && !is.null(GFDEBTN) && !is.na(fdh_val_col) && !is.na(gfd_
   foreign_hold <- data.table(DATE = base_dates, foreign_holdings = NA_real_)
 }
 
-# 5. Annual actual GDP
-if (!is.null(GDP_ACTUAL) && !is.na(gdp_val_col) && "DATE" %in% names(GDP_ACTUAL)) {
-  GDP_ACTUAL[, fyear := as.integer(format(DATE, "%Y"))]
-  gdp_annual <- GDP_ACTUAL[, .(actual_gdp = mean(num_vec(get(gdp_val_col)), na.rm = TRUE)), by = .(year = fyear)]
-} else {
-  gdp_annual <- data.table(year = integer(), actual_gdp = numeric())
-}
-setkey(gdp_annual, year)
-
-# 6. Population growth lookup
+# 5. Population growth lookup
 pop_lookup <- function(cbo_years) {
   sapply(cbo_years, function(y) {
     val <- unpop[year == y, pop_growth]
     if(length(val) == 0) NA_real_ else val[1]
-  })
-}
-
-# 7. Inflation lookup: find nearest inflation expectation to CBO release date
-inf_lookup <- function(dates) {
-  if (is.null(EXPINF5YR) || is.na(infl_val_col) || !"DATE" %in% names(EXPINF5YR) || nrow(EXPINF5YR) == 0) {
-    return(rep(NA_real_, length(dates)))
-  }
-  sapply(dates, function(d) {
-    idx <- which.min(abs(EXPINF5YR$DATE - d))
-    num_vec(EXPINF5YR[[infl_val_col]][idx])
   })
 }
 
@@ -311,7 +277,6 @@ print_rows("strate", strate)
 print_rows("risk_ind", risk_ind)
 print_rows("rec", rec)
 print_rows("foreign_hold", foreign_hold)
-print_rows("gdp_annual", gdp_annual)
 print_rows("rates", rates)
 if (!is.null(fwd)) print_rows("fwd", fwd)
 cat(sprintf("[sanity] foreign_holdings NA=%d/%d\n", sum(is.na(foreign_hold$foreign_holdings)), nrow(foreign_hold)))
@@ -353,11 +318,8 @@ merge_all <- function(cbo_dt) {
   out <- join_nearest(out, rec,       "recession")
   out <- join_nearest(out, foreign_hold, "foreign_holdings")
   
-  # Population and GDP growth
+  # Population growth only; UK fiscal inputs are already expressed as % of GDP.
   out[, pop_growth := pop_lookup(as.integer(format(DATE, "%Y")))]
-  cbo_gdp_col <- pick_col(cbo_dt, c("GDP", "proj_gdp"))
-  out[, proj_gdp := if (!is.na(cbo_gdp_col)) num_vec(cbo_dt[[cbo_gdp_col]]) else NA_real_]
-  out[, inflation  := inf_lookup(DATE)]
   
   out
 }
@@ -376,27 +338,11 @@ add_trend <- function(dt) {
 # --- DEFICIT dataset ---
 df_deficit <- merge_all(deficit_5y_with_gdp)
 df_deficit[, fiscal_balance := num_vec(deficit_5y_with_gdp[match(df_deficit$DATE, deficit_5y_with_gdp$DATE), get(def_value_col)])]
-
-df_deficit[, release_year := as.integer(format(DATE, "%Y"))]
-df_deficit[gdp_annual, on = .(release_year = year), actual_gdp := i.actual_gdp]
-if (anyNA(df_deficit$actual_gdp))
-  warning(sprintf("%s deficit: %d CBO release year(s) unmatched in GDP",
-                  toupper(COUNTRY), sum(is.na(df_deficit$actual_gdp))))
-df_deficit[, gdp_growth := ((proj_gdp / actual_gdp)^(0.2) - 1) * 100 - inflation]
-df_deficit[, c("release_year", "actual_gdp", "proj_gdp", "inflation") := NULL]
 add_trend(df_deficit)
 
 # --- DEBT dataset ---
 df_debt <- merge_all(debt_5y_with_gdp)
 df_debt[, debt := num_vec(debt_5y_with_gdp[match(df_debt$DATE, debt_5y_with_gdp$DATE), get(debt_value_col)])]
-
-df_debt[, release_year := as.integer(format(DATE, "%Y"))]
-df_debt[gdp_annual, on = .(release_year = year), actual_gdp := i.actual_gdp]
-if (anyNA(df_debt$actual_gdp))
-  warning(sprintf("%s debt: %d CBO release year(s) unmatched in GDP",
-                  toupper(COUNTRY), sum(is.na(df_debt$actual_gdp))))
-df_debt[, gdp_growth := ((proj_gdp / actual_gdp)^(0.2) - 1) * 100 - inflation]
-df_debt[, c("release_year", "actual_gdp", "proj_gdp", "inflation") := NULL]
 add_trend(df_debt)
 
 cat("Regression datasets built.\n\n")
@@ -405,35 +351,35 @@ print_rows("df_deficit", df_deficit)
 print_rows("df_debt", df_debt)
 print_complete_cases("df_deficit M4 vars", df_deficit,
                      c("rate_long", "fwd_5_10y", "fwd_10_15y", "tprem5", "tprem10",
-                       "fiscal_balance", "t", "st_rate", "gdp_growth", "foreign_holdings",
+                       "fiscal_balance", "t", "st_rate", "foreign_holdings",
                        "risk_ind", "recession", "pop_growth"))
 print_complete_cases("df_debt M4 vars", df_debt,
                      c("rate_long", "fwd_5_10y", "fwd_10_15y", "tprem5", "tprem10",
-                       "debt", "t", "st_rate", "gdp_growth", "foreign_holdings",
+                       "debt", "t", "st_rate", "foreign_holdings",
                        "risk_ind", "recession", "pop_growth"))
 cat("\n")
 
 # --- Sanity check ---
-cat("\n--- GDP growth sanity check ---\n")
-cat("df_deficit:\n"); print(summary(df_deficit$gdp_growth))
-cat("df_debt:\n");    print(summary(df_debt$gdp_growth))
+cat("\n--- Fiscal input sanity check ---\n")
+cat("UK fiscal inputs are treated as already expressed in % of GDP.\n")
+cat("deficit summary:\n"); print(summary(df_deficit$fiscal_balance))
+cat("debt summary:\n");    print(summary(df_debt$debt))
 
 sanity_dt <- rbind(
-  df_deficit[, .(DATE, gdp_growth, dataset = "Deficit")],
-  df_debt[,    .(DATE, gdp_growth, dataset = "Debt")]
+  df_deficit[, .(DATE, value = fiscal_balance, dataset = "Deficit (% GDP)")],
+  df_debt[,    .(DATE, value = debt, dataset = "Debt (% GDP)")]
 )
 
-p_sanity <- ggplot(sanity_dt, aes(x = DATE, y = gdp_growth, color = dataset)) +
+p_sanity <- ggplot(sanity_dt, aes(x = DATE, y = value, color = dataset)) +
   geom_line(linewidth = 0.7) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
-  scale_color_manual(values = c("Deficit" = "#c0392b", "Debt" = "#1f3a5f")) +
-  labs(title = sprintf("GDP growth sanity check: %s", toupper(COUNTRY)),
-       x = NULL, y = "% per year", color = NULL) +
+  scale_color_manual(values = c("Deficit (% GDP)" = "#c0392b", "Debt (% GDP)" = "#1f3a5f")) +
+  labs(title = sprintf("Fiscal input sanity check: %s", toupper(COUNTRY)),
+       x = NULL, y = "% of GDP", color = NULL) +
   theme_bw(base_size = 10)
 
-ggsave(file.path(OUT_DIR, "sanity_gdp_growth.png"), p_sanity,
+ggsave(file.path(OUT_DIR, "sanity_fiscal_inputs.png"), p_sanity,
        width = 8, height = 3.5, dpi = 150, bg = "white")
-cat(sprintf("Sanity plot saved: %s\n", file.path(OUT_DIR, "sanity_gdp_growth.png")))
+cat(sprintf("Sanity plot saved: %s\n", file.path(OUT_DIR, "sanity_fiscal_inputs.png")))
 
 ##############
 # REGRESSION
@@ -456,6 +402,18 @@ y_labels <- c(
 
 run_reg_full <- function(df, y_var, x_var, controls) {
   ctrl <- controls
+
+  # Build controls dynamically from what's usable in this dataset.
+  if (nchar(ctrl) > 0) {
+    requested <- trimws(unlist(strsplit(ctrl, "\\+")))
+    requested <- requested[nchar(requested) > 0]
+    available <- requested[requested %in% names(df)]
+    usable <- available[sapply(available, function(v) {
+      vv <- df[[v]]
+      sum(!is.na(vv)) >= 5 && length(unique(vv[!is.na(vv)])) > 1
+    })]
+    ctrl <- paste(usable, collapse = " + ")
+  }
   
   fml <- as.formula(paste(y_var, "~", x_var,
                           if(ctrl != "") paste("+", ctrl) else ""))
@@ -509,32 +467,32 @@ specs_sequential <- list(
   "O1.M1 baseline"           = "",
   "O1.M2 +strate"            = "st_rate",
   "O1.M3 +strate+trend"      = "st_rate + t",
-  "O1.M4 +strate+trend+ctrl" = "st_rate + t + gdp_growth + foreign_holdings + risk_ind + recession + pop_growth",
+  "O1.M4 +strate+trend+ctrl" = "st_rate + t + foreign_holdings + risk_ind + recession + pop_growth",
   
   # Ordering 2: trend -> st_rate -> controls
   "O2.M2 +trend"             = "t",
   "O2.M3 +trend+strate"      = "t + st_rate",
-  "O2.M4 +trend+strate+ctrl" = "t + st_rate + gdp_growth + foreign_holdings + risk_ind + recession + pop_growth",
+  "O2.M4 +trend+strate+ctrl" = "t + st_rate + foreign_holdings + risk_ind + recession + pop_growth",
   
   # Ordering 3: controls -> st_rate -> trend
-  "O3.M2 +ctrl"              = "gdp_growth + foreign_holdings + risk_ind + recession + pop_growth",
-  "O3.M3 +ctrl+strate"       = "gdp_growth + foreign_holdings + risk_ind + recession + pop_growth + st_rate",
-  "O3.M4 +ctrl+strate+trend" = "gdp_growth + foreign_holdings + risk_ind + recession + pop_growth + st_rate + t",
+  "O3.M2 +ctrl"              = "foreign_holdings + risk_ind + recession + pop_growth",
+  "O3.M3 +ctrl+strate"       = "foreign_holdings + risk_ind + recession + pop_growth + st_rate",
+  "O3.M4 +ctrl+strate+trend" = "foreign_holdings + risk_ind + recession + pop_growth + st_rate + t",
   
   # Ordering 4: trend -> controls -> st_rate
   "O4.M2 +trend"             = "t",
-  "O4.M3 +trend+ctrl"        = "t + gdp_growth + foreign_holdings + risk_ind + recession + pop_growth",
-  "O4.M4 +trend+ctrl+strate" = "t + gdp_growth + foreign_holdings + risk_ind + recession + pop_growth + st_rate",
+  "O4.M3 +trend+ctrl"        = "t + foreign_holdings + risk_ind + recession + pop_growth",
+  "O4.M4 +trend+ctrl+strate" = "t + foreign_holdings + risk_ind + recession + pop_growth + st_rate",
   
   # Ordering 5: st_rate -> controls -> trend
   "O5.M2 +strate"            = "st_rate",
-  "O5.M3 +strate+ctrl"       = "st_rate + gdp_growth + foreign_holdings + risk_ind + recession + pop_growth",
-  "O5.M4 +strate+ctrl+trend" = "st_rate + gdp_growth + foreign_holdings + risk_ind + recession + pop_growth + t",
+  "O5.M3 +strate+ctrl"       = "st_rate + foreign_holdings + risk_ind + recession + pop_growth",
+  "O5.M4 +strate+ctrl+trend" = "st_rate + foreign_holdings + risk_ind + recession + pop_growth + t",
   
   # Ordering 6: controls -> trend -> st_rate
-  "O6.M2 +ctrl"              = "gdp_growth + foreign_holdings + risk_ind + recession + pop_growth",
-  "O6.M3 +ctrl+trend"        = "gdp_growth + foreign_holdings + risk_ind + recession + pop_growth + t",
-  "O6.M4 +ctrl+trend+strate" = "gdp_growth + foreign_holdings + risk_ind + recession + pop_growth + t + st_rate"
+  "O6.M2 +ctrl"              = "foreign_holdings + risk_ind + recession + pop_growth",
+  "O6.M3 +ctrl+trend"        = "foreign_holdings + risk_ind + recession + pop_growth + t",
+  "O6.M4 +ctrl+trend+strate" = "foreign_holdings + risk_ind + recession + pop_growth + t + st_rate"
 )
 
 cat("\n========== SEQUENTIAL REGRESSION ANALYSIS ==========")
@@ -555,8 +513,8 @@ specs_quad <- list(
   "M1: baseline"          = "",
   "M2: +trend"            = "t",
   "M3: +trend+strate"     = "t + st_rate",
-  "M4: +all controls"     = "t + st_rate + gdp_growth + risk_ind + recession + pop_growth",
-  "M5: +quadratic trend"  = "t + t2 + st_rate + gdp_growth + risk_ind + recession + pop_growth"
+  "M4: +all controls"     = "t + st_rate + risk_ind + recession + pop_growth + foreign_holdings",
+  "M5: +quadratic trend"  = "t + t2 + st_rate + risk_ind + recession + pop_growth + foreign_holdings"
 )
 
 for(spec_name in names(specs_quad)) {
